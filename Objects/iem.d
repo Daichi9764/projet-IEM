@@ -10,3 +10,4 @@
 .\objects\iem.o: ..\tp_microcontrolleur\Drivers\MyTimer.h
 .\objects\iem.o: ..\tp_microcontrolleur\Drivers\MyGPIO.h
 .\objects\iem.o: ..\tp_microcontrolleur\Drivers\MyADC.h
+.\objects\iem.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

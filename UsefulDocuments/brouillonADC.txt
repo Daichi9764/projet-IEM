@@ -1,0 +1,55 @@
+
+
+//register:
+//ADC status register ADC_SR
+//ADC Control Register ADC_CR
+//ADC Sequence Register ADC_SQR
+//EOC: End of conversion. cleared by software or by reading the ADC_DR.
+
+
+void simpleADC (void){
+	//enable adc OK
+		//set ADON bit in ADC_CR2 register
+		ADC1 -> CR2 |= ADC_CR_ADON;
+	//input config
+		//set by default to ADC1 CR2 SQ1 ADC_SQR1(channel 1)
+		//ln0 to ln15 are the "weights", they are all used for one conversion
+		//SQ1[4:0](ADC1->SQR1) set to 0000 for 1 conversion per sequence
+		//SQ is the conversion number of the sequence
+		//SQ1[4:0] is the 1st conversion in regular sequence
+		//how to connect input channel of ADC to input of nucleo ?
+	//Mode Single not continuous
+		
+	//trigger config OK
+		//If the EXTTRIG control bit is set then external events are able to trigger a conversion
+		//config with EXTTRIG (ADC1 -> CR2)
+		//EXTSEL set to SW Start (EXTSEL[2:0] set to 111)
+		ADC1 -> CR2 |= ADC_CR_EXTTRIG;
+		ADC1 -> CR2 |= ADC_CR_EXTSEL&111;
+	//output config OK
+		//If a regular channel was converted:
+		//The converted data is stored in the 16-bit ADC_DR register
+		//The EOC (End Of Conversion) flag is set
+		//and an interrupt is generated if the EOCIE is set.
+		//result of conversion stored in ADC1 -> DR
+	//interruption when end of conversion OK
+		//when flag EOC is set, send IT to NVIC to read data.
+		//enable interrupt at ADC level : EOCIE set to 1
+			ADC1->CR |= ADC_CR_EOCIE;		
+		//enable interrupt at NVIC level
+			NVIC_EnableIRQ(ADC1_IRQn);
+			//level of prority set to 3 as default
+       			NVIC_SetPriority(ADC1_IRQn, 3);
+		//EOC Handler
+			void ADC1_IRQHandler(void)
+			{
+				//clear EOC flag, may not be necessary because cleared when reading th DR register
+				ADC1->SR &= ~ADC_SR_EOC;
+				//pointer to a function in the main called when handling IT, that reads conversion data in ADC1 -> DR register
+				//ptr();
+			}
+	//sequencer config
+		//left to default
+		//SMPx = for sequencing, not used here
+	//enable ADC clock?
+}
