@@ -38,7 +38,7 @@ MyTimer_Struct_TypeDef TimerPWM;
 
 	int n = 0;
 	void MajADC() {
-		n = MyADC_ReadADC();
+		n = MyADC_ReadADC(8);
 		TimerStep.ARR = n*4;
 				MyTimer_Base_Init(&TimerStep);
 		MyTimer_Base_Start(TimerStep);
