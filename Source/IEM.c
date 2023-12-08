@@ -7,32 +7,49 @@
 //configure GPIO output pin PA5
 //output mode : Out_Ppull
 MyGPIO_Struct_typedef out;
+MyGPIO_Struct_typedef in;
 MyTimer_Struct_TypeDef TimerStep;
 MyTimer_Struct_TypeDef TimerPWM;
 
 
-int cnt = 0;
-bool monter = true;
-//50maj de pwm par pente
-void MajPWM() {
-	if (monter) {
-			cnt++;
-	}
-	else
-	{
-		cnt--;
+	int cnt = 0;
+	bool monter = true;
+	//50maj de pwm par pente
+	void MajPWM() {
+		if (monter) {
+				cnt++;
+		}
+		else
+		{
+			cnt--;
+		}
+
+		MyTimerSetPWMCycle(TimerPWM.Timer, 1, cnt * 2);
+		//clear interrupt flag
+		TIM2->SR &= ~TIM_SR_UIF;
+		
+			if(cnt == 50){
+			monter = false;
+		}
+		if (cnt == 0){
+			monter = true;
+		}
 	}
 
-	MyTimerSetPWMCycle(TimerPWM.Timer, 1, cnt * 2);
-	//clear interrupt flag
-	TIM2->SR &= ~TIM_SR_UIF;
+	int n = 0;
+	void MajADC() {
+		n = MyADC_ReadADC();
+		TimerStep.ARR = n*4;
+				MyTimer_Base_Init(&TimerStep);
+		MyTimer_Base_Start(TimerStep);
+
+	}
 	
-		if(cnt == 50){
-		monter = false;
-	}
-	if (cnt == 0){
-		monter = true;
-	}
+void Maj(){
+	//main
+	MajPWM();
+	MajADC();
+
 }
 
 void IEM(void) {
@@ -47,7 +64,7 @@ void IEM(void) {
 		TimerStep.ARR = 1700;		
 		MyTimer_Base_Init(&TimerStep);
 		MyTimer_Base_Start(TimerStep);
-		MyTimer_ActiveIT(TimerStep.Timer, 3, &MajPWM);
+		MyTimer_ActiveIT(TimerStep.Timer, 3, &Maj);
 	//---------------------------------
 		
 	
@@ -68,6 +85,19 @@ MyGPIO_Init(&out);
 		MyTimer_PMW(TimerPWM.Timer, 1);
 
 	//----------------------------
+	
+	
+	//---------ADC-------------------
+
+
+
+		//ADC input PB0 In8
+		in.GPIO = GPIOB;
+		in.GPIO_Pin = 0;
+		in.GPIO_Conf = In_Analog;
+		MyGPIO_Init(&in);
+		
+			MyADC_init();
 
 		
 	}
