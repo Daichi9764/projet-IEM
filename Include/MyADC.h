@@ -6,7 +6,4 @@
 void MyADC_init(void);
 int MyADC_ReadADC();
 
-
-
-
 #endif
